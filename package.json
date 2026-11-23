@@ -1,0 +1,13 @@
+{
+  "name": "velora-estore-root",
+  "version": "1.0.0",
+  "description": "Velora E-Commerce Full Stack Web Application",
+  "type": "module",
+  "scripts": {
+    "start": "node run-all.js",
+    "dev:backend": "npm --prefix backend run dev",
+    "start:backend": "npm --prefix backend start",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "build:frontend": "npm --prefix frontend run build"
+  }
+}

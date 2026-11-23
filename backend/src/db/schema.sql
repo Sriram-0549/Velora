@@ -1,0 +1,79 @@
+-- Velora E-Store PostgreSQL Database Schema
+-- Designed for production e-commerce operations
+
+CREATE TABLE IF NOT EXISTS users (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(150) NOT NULL,
+  email VARCHAR(150) NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
+  role VARCHAR(50) NOT NULL DEFAULT 'customer',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS categories (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(100) NOT NULL UNIQUE,
+  slug VARCHAR(100) NOT NULL UNIQUE,
+  description TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS products (
+  id SERIAL PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  slug VARCHAR(255) NOT NULL UNIQUE,
+  description TEXT NOT NULL,
+  price NUMERIC(10, 2) NOT NULL,
+  compare_price NUMERIC(10, 2),
+  category VARCHAR(100) NOT NULL,
+  image_url TEXT NOT NULL,
+  stock INT NOT NULL DEFAULT 10,
+  rating NUMERIC(2, 1) DEFAULT 4.5,
+  reviews_count INT DEFAULT 0,
+  featured BOOLEAN DEFAULT false,
+  badge VARCHAR(50),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS orders (
+  id VARCHAR(50) PRIMARY KEY,
+  user_id INT REFERENCES users(id) ON DELETE SET NULL,
+  customer_name VARCHAR(150) NOT NULL,
+  customer_email VARCHAR(150) NOT NULL,
+  customer_phone VARCHAR(50),
+  shipping_address TEXT NOT NULL,
+  shipping_city VARCHAR(100) NOT NULL,
+  shipping_postal_code VARCHAR(30) NOT NULL,
+  subtotal NUMERIC(10, 2) NOT NULL,
+  tax NUMERIC(10, 2) NOT NULL DEFAULT 0.00,
+  shipping_fee NUMERIC(10, 2) NOT NULL DEFAULT 0.00,
+  total_amount NUMERIC(10, 2) NOT NULL,
+  order_status VARCHAR(50) NOT NULL DEFAULT 'PLACED',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS order_items (
+  id SERIAL PRIMARY KEY,
+  order_id VARCHAR(50) REFERENCES orders(id) ON DELETE CASCADE,
+  product_id INT REFERENCES products(id),
+  title VARCHAR(255) NOT NULL,
+  price NUMERIC(10, 2) NOT NULL,
+  quantity INT NOT NULL,
+  total NUMERIC(10, 2) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS payments (
+  id SERIAL PRIMARY KEY,
+  order_id VARCHAR(50) REFERENCES orders(id) ON DELETE CASCADE,
+  transaction_id VARCHAR(100) NOT NULL UNIQUE,
+  gateway VARCHAR(50) NOT NULL DEFAULT 'VELORA_MOCK_PAY',
+  amount NUMERIC(10, 2) NOT NULL,
+  currency VARCHAR(10) NOT NULL DEFAULT 'USD',
+  card_last4 VARCHAR(4) NOT NULL,
+  card_brand VARCHAR(50) NOT NULL,
+  payment_status VARCHAR(50) NOT NULL,
+  receipt_url TEXT,
+  error_message TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
